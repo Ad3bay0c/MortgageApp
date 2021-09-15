@@ -9,9 +9,12 @@ import (
 
 func main() {
 	router := mux.NewRouter()
-	subRouter := router.PathPrefix("/api").Subrouter()
-	subRouter.HandleFunc("/create", bank.Create).Methods("POST")
-	subRouter.HandleFunc("/", bank.BankList).Methods("GET")
+	//subRouter := router.PathPrefix("/api").Subrouter()
+	router.HandleFunc("/create", bank.Create).Methods("POST")
+	router.HandleFunc("/", bank.List).Methods("GET")
+	router.HandleFunc("/{id}", bank.GetBank).Methods("GET")
+	router.HandleFunc("/update/{id}", bank.Update).Methods("PUT")
+	router.HandleFunc("/delete/{id}", bank.Delete).Methods("DELETE")
 
 	err := http.ListenAndServe(":3000", router)
 	if err != nil {
