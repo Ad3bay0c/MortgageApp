@@ -12,22 +12,41 @@ import (
 )
 
 type Bank struct {
+	ID			string	`json:"_id,omitempty" bson:"_id,omitempty"`
 	Name		string	`json:"name,omitempty" bson:"name,omitempty"`
 	Interest	float64	`json:"interest,omitempty" bson:"interest,omitempty"`
 	MaxLoan		float64	`json:"max_loan,omitempty" bson:"max_loan,omitempty"`
 	MinDown		float64	`json:"min_down,omitempty" bson:"min_down,omitempty"`
 	LoanTerm	float64	`json:"loan_term,omitempty" bson:"loan_term,omitempty"`
-	CreatedAt	int		`json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdateAt	int		`json:"update_at,omitempty" bson:"update_at,omitempty"`
+	CreatedAt	int64	`json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdateAt	int64	`json:"update_at,omitempty" bson:"update_at,omitempty"`
 }
 
 type Message struct {
 	Message		string		`json:"message,omitempty" bson:"message,omitempty"`
 	Data		interface{}	`json:"data,omitempty" bson:"data,omitempty"`
 }
+
 var collection = db.Client.Database("ContactKeeper").Collection("bank")
 
 func Create(w http.ResponseWriter, r *http.Request) {
+	 w.Header().Set("Content-Type", "application/json")
+
+	 var bank *Bank
+
+	 _ = json.NewDecoder(r.Body).Decode(&bank)
+	bank.CreatedAt = time.Now().Unix()
+	bank.UpdateAt = time.Now().Unix()
+
+	 ctx, _ := context.WithTimeout(context.Background(), 10 * time.Minute)
+	 result, err := collection.InsertOne(ctx, bank)
+	 if err != nil {
+		 w.WriteHeader(http.StatusInternalServerError)
+		 log.Printf("%v", err.Error())
+		 json.NewEncoder(w).Encode(Message{Message: "Server Error"})
+		 return
+	 }
+	 result.InsertedID
 	w.Write([]byte("Create Endpoint Connected"))
 }
 
