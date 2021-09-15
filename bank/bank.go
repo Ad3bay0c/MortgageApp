@@ -38,7 +38,8 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	bank.CreatedAt = time.Now().Unix()
 	bank.UpdateAt = time.Now().Unix()
 
-	 ctx, _ := context.WithTimeout(context.Background(), 10 * time.Minute)
+	 ctx, cancelFunc := context.WithTimeout(context.Background(), 10 * time.Minute)
+	 cancelFunc()
 	 result, err := collection.InsertOne(ctx, bank)
 	 if err != nil {
 		 w.WriteHeader(http.StatusInternalServerError)
@@ -46,8 +47,10 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		 json.NewEncoder(w).Encode(Message{Message: "Server Error"})
 		 return
 	 }
-	 result.InsertedID
-	w.Write([]byte("Create Endpoint Connected"))
+
+	 w.WriteHeader(http.StatusOK)
+	 json.NewEncoder(w).Encode(Message{Message: "Successful", Data: result.InsertedID})
+
 }
 
 func List(w http.ResponseWriter, r *http.Request) {
@@ -61,6 +64,7 @@ func List(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error: %v", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(Message{Message: "Server Error"})
+		return
 	}
 
 	for result.Next(ctx) {
