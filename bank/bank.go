@@ -17,7 +17,7 @@ type Bank struct {
 	Interest	float64	`json:"interest,omitempty" bson:"interest,omitempty"`
 	MaxLoan		float64	`json:"max_loan,omitempty" bson:"max_loan,omitempty"`
 	MinDown		float64	`json:"min_down,omitempty" bson:"min_down,omitempty"`
-	LoanTerm	float64	`json:"loan_term,omitempty" bson:"loan_term,omitempty"`
+	LoanTerm	int64	`json:"loan_term,omitempty" bson:"loan_term,omitempty"`
 	CreatedAt	int64	`json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdateAt	int64	`json:"update_at,omitempty" bson:"update_at,omitempty"`
 }
@@ -32,14 +32,14 @@ var collection = db.Client.Database("ContactKeeper").Collection("bank")
 func Create(w http.ResponseWriter, r *http.Request) {
 	 w.Header().Set("Content-Type", "application/json")
 
-	 var bank *Bank
+	 var bank Bank
 
 	 _ = json.NewDecoder(r.Body).Decode(&bank)
 	bank.CreatedAt = time.Now().Unix()
 	bank.UpdateAt = time.Now().Unix()
 
-	 ctx, cancelFunc := context.WithTimeout(context.Background(), 10 * time.Minute)
-	 cancelFunc()
+	 ctx, _ := context.WithTimeout(context.Background(), 10 * time.Minute)
+	 //cancelFunc()
 	 result, err := collection.InsertOne(ctx, bank)
 	 if err != nil {
 		 w.WriteHeader(http.StatusInternalServerError)
@@ -47,7 +47,6 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		 json.NewEncoder(w).Encode(Message{Message: "Server Error"})
 		 return
 	 }
-
 	 w.WriteHeader(http.StatusOK)
 	 json.NewEncoder(w).Encode(Message{Message: "Successful", Data: result.InsertedID})
 
