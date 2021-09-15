@@ -13,10 +13,10 @@ func List(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Bank List Endpoint Created"))
 }
 
-//func Update(w http.ResponseWriter, r *http.Request) {
-//	w.Write([]byte("Update Bank"))
-//}
-//
+func Update(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Update Bank"))
+}
+
 //func Delete(w http.ResponseWriter, r *http.Request) {
 //	w.Write([]byte("Delete Bank"))
 //}
