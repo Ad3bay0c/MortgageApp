@@ -5,21 +5,23 @@ import (
 	"encoding/json"
 	"github.com/Ad3bay0c/mortgage_app/db"
 	_ "github.com/Ad3bay0c/mortgage_app/db"
+	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 	"net/http"
 	"time"
 )
 
 type Bank struct {
-	ID			string	`json:"_id,omitempty" bson:"_id,omitempty"`
-	Name		string	`json:"name,omitempty" bson:"name,omitempty"`
-	Interest	float64	`json:"interest,omitempty" bson:"interest,omitempty"`
-	MaxLoan		float64	`json:"max_loan,omitempty" bson:"max_loan,omitempty"`
-	MinDown		float64	`json:"min_down,omitempty" bson:"min_down,omitempty"`
-	LoanTerm	int64	`json:"loan_term,omitempty" bson:"loan_term,omitempty"`
-	CreatedAt	int64	`json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdateAt	int64	`json:"update_at,omitempty" bson:"update_at,omitempty"`
+	ID			primitive.ObjectID	`json:"_id,omitempty" bson:"_id,omitempty"`
+	Name		string				`json:"name,omitempty" bson:"name,omitempty"`
+	Interest	float64				`json:"interest,omitempty" bson:"interest,omitempty"`
+	MaxLoan		float64				`json:"max_loan,omitempty" bson:"max_loan,omitempty"`
+	MinDown		float64				`json:"min_down,omitempty" bson:"min_down,omitempty"`
+	LoanTerm	int64				`json:"loan_term,omitempty" bson:"loan_term,omitempty"`
+	CreatedAt	int64				`json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdateAt	int64				`json:"update_at,omitempty" bson:"update_at,omitempty"`
 }
 
 type Message struct {
@@ -50,6 +52,29 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	 w.WriteHeader(http.StatusOK)
 	 json.NewEncoder(w).Encode(Message{Message: "Successful", Data: result.InsertedID})
 
+}
+
+func GetBank(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var bank Bank
+
+	params := mux.Vars(r)
+	id, _ := primitive.ObjectIDFromHex(params["id"])
+
+	ctx, _ := context.WithTimeout(context.Background(), 10 * time.Minute)
+
+	result := collection.FindOne(ctx, Bank{ID: id})
+
+	err := result.Decode(&bank)
+	if err != nil {
+		w.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(w).Encode(Message{Message: "ID Does Not Exist"})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(bank)
 }
 
 func List(w http.ResponseWriter, r *http.Request) {
