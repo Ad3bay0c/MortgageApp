@@ -40,7 +40,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	bank.CreatedAt = time.Now().Unix()
 	bank.UpdateAt = time.Now().Unix()
 
-	 ctx, _ := context.WithTimeout(context.Background(), 10 * time.Minute)
+	 ctx, _ := context.WithTimeout(context.Background(), 5 * time.Minute)
 	 //cancelFunc()
 	 result, err := collection.InsertOne(ctx, bank)
 	 if err != nil {
@@ -62,9 +62,10 @@ func GetBank(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id, _ := primitive.ObjectIDFromHex(params["id"])
 
-	ctx, _ := context.WithTimeout(context.Background(), 10 * time.Minute)
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 5 * time.Minute)
 
-	result := collection.FindOne(ctx, Bank{ID: id})
+	result := collection.FindOne(ctx, bson.M{"_id": id})
+	cancelFunc()
 
 	err := result.Decode(&bank)
 	if err != nil {
@@ -82,7 +83,7 @@ func List(w http.ResponseWriter, r *http.Request) {
 
 	var banks []Bank
 
-	ctx, _:= context.WithTimeout(context.Background(), 10 * time.Minute)
+	ctx, _:= context.WithTimeout(context.Background(), 5 * time.Minute)
 	result, err := collection.Find(ctx, bson.M{})
 	if err != nil {
 		log.Printf("Error: %v", err.Error())
