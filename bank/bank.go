@@ -41,7 +41,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	bank.CreatedAt = time.Now().Unix()
 	bank.UpdateAt = time.Now().Unix()
 
-	 ctx, _ := context.WithTimeout(context.Background(), 5 * time.Minute)
+	 ctx, _ := context.WithTimeout(context.Background(), 10 * time.Second)
 	 //cancelFunc()
 	 result, err := collection.InsertOne(ctx, bank)
 	 if err != nil {
@@ -64,7 +64,7 @@ func GetBank(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id, _ := primitive.ObjectIDFromHex(params["id"])
 
-	ctx, cancelFunc := context.WithTimeout(context.Background(), 5 * time.Minute)
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 10 * time.Second)
 
 	result := collection.FindOne(ctx, bson.M{"_id": id})
 	cancelFunc()
@@ -86,7 +86,7 @@ func List(w http.ResponseWriter, r *http.Request) {
 
 	var banks []Bank
 
-	ctx, _:= context.WithTimeout(context.Background(), 5 * time.Minute)
+	ctx, _:= context.WithTimeout(context.Background(), 10 * time.Second)
 	result, err := collection.Find(ctx, bson.M{})
 	if err != nil {
 		log.Printf("Error: %v", err.Error())
@@ -103,19 +103,11 @@ func List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//for result.Next(ctx) {
-	//	var bank Bank
-	//
-	//	_ = result.Decode(&bank)
-	//	banks = append(banks, bank)
-	//}
-
 	w.WriteHeader(http.StatusOK)
 	if len(banks) == 0 {
 		json.NewEncoder(w).Encode(Message{Message: "Empty List", Data: nil})
 		return
 	}
-	//w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(Message{Message: "Success", Data: banks})
 }
 
@@ -135,15 +127,13 @@ func Update(w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
 	id, _ := primitive.ObjectIDFromHex(params["id"])
-	ctx, _ := context.WithTimeout(context.Background(), 2 * time.Minute)
+	ctx, _ := context.WithTimeout(context.Background(), 10 * time.Second)
 	err = collection.FindOneAndUpdate(ctx, bson.M{"_id": id}, bson.D{{"$set", bank}}).Decode(&result)
 	if err != nil {
 		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode(Message{Message: "ID does not exist"})
 		return
 	}
-
-	//w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(Message{Message: "Updated Successfully", Data: result.ID})
 }
 
@@ -155,7 +145,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id, _ := primitive.ObjectIDFromHex(params["id"])
 
-	ctx, _ := context.WithTimeout(context.Background(), 5 * time.Minute)
+	ctx, _ := context.WithTimeout(context.Background(), 10 * time.Second)
 	err := collection.FindOneAndDelete(ctx, bson.M{"_id": id}).Decode(&deletedBank)
 
 	if err != nil {
@@ -163,6 +153,5 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(Message{Message: "ID Does Not Exist"})
 		return
 	}
-
 	json.NewEncoder(w).Encode(Message{Message: "Deleted Successfully", Data: deletedBank.ID})
 }
