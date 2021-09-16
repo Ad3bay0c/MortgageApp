@@ -115,7 +115,7 @@ func List(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(Message{Message: "Empty List", Data: nil})
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	//w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(Message{Message: "Success", Data: banks})
 }
 
@@ -123,7 +123,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 
-	var bank Bank
+	var bank, result Bank
 
 	err := json.NewDecoder(r.Body).Decode(&bank)
 	if err != nil {
@@ -135,16 +135,16 @@ func Update(w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
 	id, _ := primitive.ObjectIDFromHex(params["id"])
-	ctx, _ := context.WithTimeout(context.Background(), 5 * time.Minute)
-	err = collection.FindOneAndUpdate(ctx, bson.M{"_id": id}, bank).Decode(&bank)
+	ctx, _ := context.WithTimeout(context.Background(), 2 * time.Minute)
+	err = collection.FindOneAndUpdate(ctx, bson.M{"_id": id}, bson.D{{"$set", bank}}).Decode(&result)
 	if err != nil {
 		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode(Message{Message: "ID does not exist"})
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(Message{Message: "Updated Successfully", Data: bank})
+	//w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(Message{Message: "Updated Successfully", Data: result.ID})
 }
 
 func Delete(w http.ResponseWriter, r *http.Request) {
