@@ -12,7 +12,8 @@ import (
 var Client *mongo.Client
 
 func init() {
-	ctx, _ := context.WithTimeout(context.Background(), 1 * time.Minute)
+	ctx, cancelFunc := context.WithTimeout(context.Background(), 10 * time.Second)
+	defer cancelFunc()
 
 	Client, _ = mongo.NewClient(options.Client().ApplyURI(URI))
 
