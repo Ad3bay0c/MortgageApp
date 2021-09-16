@@ -12,7 +12,7 @@ import (
 var Client *mongo.Client
 
 func init() {
-	ctx, _ := context.WithTimeout(context.Background(), 10 * time.Minute)
+	ctx, _ := context.WithTimeout(context.Background(), 1 * time.Minute)
 
 	Client, _ = mongo.NewClient(options.Client().ApplyURI(URI))
 
