@@ -33,6 +33,7 @@ var collection = db.Client.Database("ContactKeeper").Collection("bank")
 
 func Create(w http.ResponseWriter, r *http.Request) {
 	 w.Header().Set("Content-Type", "application/json")
+	 w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	 var bank Bank
 
@@ -56,6 +57,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 func GetBank(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	var bank Bank
 
@@ -80,6 +82,7 @@ func GetBank(w http.ResponseWriter, r *http.Request) {
 
 func List(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	var banks []Bank
 
@@ -92,12 +95,20 @@ func List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for result.Next(ctx) {
-		var bank Bank
-
-		_ = result.Decode(&bank)
-		banks = append(banks, bank)
+	err = result.All(ctx, &banks)
+	if err != nil {
+		log.Printf("Error: %v", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(Message{Message: "Server Error"})
+		return
 	}
+
+	//for result.Next(ctx) {
+	//	var bank Bank
+	//
+	//	_ = result.Decode(&bank)
+	//	banks = append(banks, bank)
+	//}
 
 	w.WriteHeader(http.StatusOK)
 	if len(banks) == 0 {
@@ -108,9 +119,11 @@ func List(w http.ResponseWriter, r *http.Request) {
 }
 
 func Update(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Write([]byte("Update Bank"))
 }
 
 func Delete(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Write([]byte("Delete Bank"))
 }
