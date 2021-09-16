@@ -125,5 +125,20 @@ func Update(w http.ResponseWriter, r *http.Request) {
 
 func Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Write([]byte("Delete Bank"))
+	w.Header().Set("Content-Type", "application/json")
+
+	var deletedBank Bank
+	params := mux.Vars(r)
+	id, _ := primitive.ObjectIDFromHex(params["id"])
+
+	ctx, _ := context.WithTimeout(context.Background(), 5 * time.Minute)
+	err := collection.FindOneAndDelete(ctx, bson.M{"_id": id}).Decode(&deletedBank)
+
+	if err != nil {
+		w.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(w).Encode(Message{Message: "ID Does Not Exist"})
+		return
+	}
+
+	json.NewEncoder(w).Encode(Message{Message: "Deleted Successfully", Data: deletedBank.ID})
 }
