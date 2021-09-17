@@ -16,10 +16,10 @@ import (
 type Bank struct {
 	ID			primitive.ObjectID	`json:"_id,omitempty" bson:"_id,omitempty"`
 	Name		string				`json:"name,omitempty" bson:"name,omitempty"`
-	Interest	float64				`json:"interest,omitempty" bson:"interest,omitempty"`
-	MaxLoan		float64				`json:"max_loan,omitempty" bson:"max_loan,omitempty"`
-	MinDown		float64				`json:"min_down,omitempty" bson:"min_down,omitempty"`
-	LoanTerm	int64				`json:"loan_term,omitempty" bson:"loan_term,omitempty"`
+	Interest	float64				`json:"interest" bson:"interest"`
+	MaxLoan		float64				`json:"max_loan" bson:"max_loan"`
+	MinDown		float64				`json:"min_down" bson:"min_down"`
+	LoanTerm	int64				`json:"loan_term" bson:"loan_term"`
 	CreatedAt	int64				`json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdateAt	int64				`json:"update_at,omitempty" bson:"update_at,omitempty"`
 }
@@ -33,7 +33,6 @@ var collection = db.Client.Database("ContactKeeper").Collection("bank")
 
 func Create(w http.ResponseWriter, r *http.Request) {
 	 w.Header().Set("Content-Type", "application/json")
-	 w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	 var bank Bank
 
@@ -52,12 +51,10 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	 }
 	 w.WriteHeader(http.StatusOK)
 	 json.NewEncoder(w).Encode(Message{Message: "Successful", Data: result.InsertedID})
-
 }
 
 func GetBank(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	var bank Bank
 
@@ -82,7 +79,6 @@ func GetBank(w http.ResponseWriter, r *http.Request) {
 
 func List(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	var banks []Bank
 
@@ -112,7 +108,6 @@ func List(w http.ResponseWriter, r *http.Request) {
 }
 
 func Update(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 
 	var bank, result Bank
@@ -138,7 +133,6 @@ func Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func Delete(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 
 	var deletedBank Bank
