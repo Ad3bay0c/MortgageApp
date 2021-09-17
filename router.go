@@ -23,9 +23,10 @@ func main() {
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},
 	})
 	handler := c.Handler(router)
+	log.Printf("Server Started at localhost:5000")
 	err := http.ListenAndServe(":5000", handler)
 	if err != nil {
 		log.Fatalf("Error In Connection: %v", err.Error())
 	}
-	log.Printf("Server Started at localhost:5000")
+
 }
