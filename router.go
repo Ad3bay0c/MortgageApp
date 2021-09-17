@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/Ad3bay0c/mortgage_app/bank"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"log"
 	"net/http"
 )
@@ -16,9 +17,15 @@ func main() {
 	router.HandleFunc("/update/{id}", bank.Update).Methods("PUT")
 	router.HandleFunc("/delete/{id}", bank.Delete).Methods("DELETE")
 
-	err := http.ListenAndServe(":3000", router)
+	c := cors.New(cors.Options{
+		AllowCredentials: true,
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},
+	})
+	handler := c.Handler(router)
+	err := http.ListenAndServe(":5000", handler)
 	if err != nil {
 		log.Fatalf("Error In Connection: %v", err.Error())
 	}
-	log.Printf("Server Started at localhost:3000")
+	log.Printf("Server Started at localhost:5000")
 }
