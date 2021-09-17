@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
 	"time"
@@ -81,9 +82,11 @@ func List(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var banks []Bank
+	Opt := options.Find().SetSort(bson.D{{"created_at", -1}})
 
 	ctx, _:= context.WithTimeout(context.Background(), 10 * time.Second)
-	result, err := collection.Find(ctx, bson.M{})
+
+	result, err := collection.Find(ctx, bson.M{}, Opt)
 	if err != nil {
 		log.Printf("Error: %v", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
@@ -129,6 +132,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(Message{Message: "ID does not exist"})
 		return
 	}
+
 	json.NewEncoder(w).Encode(Message{Message: "Updated Successfully", Data: result.ID})
 }
 
